@@ -1,0 +1,190 @@
+{% extends "base.twig" %}
+
+{% block title %}
+{% if search_query %}
+Zoekresultaten voor "{{ search_query }}" - {{ app_name }}
+{% else %}
+Zoeken - {{ app_name }}
+{% endif %}
+{% endblock %}
+
+{% block meta_description %}
+{% if search_query %}
+Zoekresultaten voor "{{ search_query }}" bij {{ app_name }}. Vind de beste producten met snelle levering en uitstekende service.
+{% else %}
+Zoek naar producten bij {{ app_name }}. Ontdek ons uitgebreide assortiment met de beste deals.
+{% endif %}
+{% endblock %}
+
+{% set breadcrumbs = [
+    {'name': 'Producten', 'url': '/products'},
+    {'name': 'Zoeken', 'url': ''}
+] %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Search Header -->
+    <div class="text-center mb-12">
+        <h1 class="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">
+            {% if search_query %}
+            Zoekresultaten
+            {% else %}
+            Zoek producten
+            {% endif %}
+        </h1>
+        
+        {% if search_query %}
+        <p class="text-lg text-gray-600 mb-8">
+            {{ results_count|default(0) }} resultaten gevonden voor "<span class="font-semibold text-primary">{{ search_query }}</span>"
+        </p>
+        {% else %}
+        <p class="text-lg text-gray-600 mb-8">
+            Zoek in ons uitgebreide assortiment van duizenden producten
+        </p>
+        {% endif %}
+
+        <!-- Enhanced Search Form -->
+        <div class="max-w-2xl mx-auto">
+            <form action="/products" method="GET" class="relative">
+                <div class="flex">
+                    <input type="text" 
+                           name="search" 
+                           value="{{ search_query|default('') }}" 
+                           placeholder="Waar ben je naar op zoek?" 
+                           class="flex-1 pl-12 pr-4 py-4 text-lg border border-gray-300 rounded-l-xl focus:ring-2 focus:ring-primary focus:border-transparent"
+                           autocomplete="off">
+                    <button type="submit" class="bg-primary text-white px-8 py-4 rounded-r-xl hover:bg-blue-600 transition-colors font-semibold">
+                        Zoeken
+                    </button>
+                </div>
+                <svg class="absolute left-4 top-1/2 transform -translate-y-1/2 h-6 w-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                </svg>
+            </form>
+
+            <!-- Popular Searches -->
+            {% if not search_query %}
+            <div class="mt-8">
+                <p class="text-sm text-gray-600 mb-4">Populaire zoekopdrachten:</p>
+                <div class="flex flex-wrap justify-center gap-2">
+                    {% set popular_searches = ['laptops', 'smartphones', 'headphones', 'gaming', 'tablets', 'accessories'] %}
+                    {% for search_term in popular_searches %}
+                    <a href="/products?search={{ search_term }}" class="bg-gray-100 text-gray-700 px-4 py-2 rounded-full text-sm hover:bg-primary hover:text-white transition-colors">
+                        {{ search_term }}
+                    </a>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    {% if search_query and products %}
+    <!-- Search Results -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        {% for product in products %}
+        <div class="group bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 overflow-hidden">
+            <div class="relative">
+                <a href="/products/{{ product.id }}">
+                    {% if product.image %}
+                    <img src="{{ product.image }}" alt="{{ product.name }}" class="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300">
+                    {% else %}
+                    <div class="w-full h-48 bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
+                        <svg class="w-16 h-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                        </svg>
+                    </div>
+                    {% endif %}
+                </a>
+                
+                <!-- Stock Badge -->
+                {% if product.stock_quantity <= 0 %}
+                <div class="absolute top-2 left-2 bg-red-500 text-white px-2 py-1 rounded text-xs font-medium">
+                    Uitverkocht
+                </div>
+                {% elseif product.stock_quantity <= 5 %}
+                <div class="absolute top-2 left-2 bg-orange-500 text-white px-2 py-1 rounded text-xs font-medium">
+                    Laatste {{ product.stock_quantity }}
+                </div>
+                {% endif %}
+
+                <!-- Category Badge -->
+                {% if product.category_name %}
+                <div class="absolute top-2 right-2 bg-black/70 text-white px-2 py-1 rounded text-xs">
+                    {{ product.category_name }}
+                </div>
+                {% endif %}
+            </div>
+            
+            <div class="p-4">
+                <a href="/products/{{ product.id }}">
+                    <h3 class="font-semibold text-gray-900 mb-2 group-hover:text-primary transition-colors line-clamp-2">
+                        {{ product.name }}
+                    </h3>
+                </a>
+                
+                {% if product.description %}
+                <p class="text-gray-600 text-sm mb-3 line-clamp-2">{{ product.description|truncate(100) }}</p>
+                {% endif %}
+                
+                <div class="flex items-center justify-between mb-4">
+                    <span class="text-xl font-bold text-primary">€{{ product.price|number_format(2, ',', '.') }}</span>
+                    {% if product.stock_quantity > 0 %}
+                    <span class="text-sm text-green-600 font-medium">Op voorraad</span>
+                    {% endif %}
+                </div>
+                
+                <div class="flex space-x-2">
+                    <a href="/products/{{ product.id }}" class="flex-1 bg-gray-100 text-gray-800 px-4 py-2 rounded-lg text-center font-medium hover:bg-gray-200 transition-colors">
+                        Bekijken
+                    </a>
+                    {% if product.stock_quantity > 0 %}
+                    <button onclick="addToCart({{ product.id }})" class="flex-1 bg-primary text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-600 transition-colors">
+                        Toevoegen
+                    </button>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    {% elseif search_query %}
+    <!-- No Results -->
+    <div class="text-center py-12 bg-white rounded-lg">
+        <svg class="mx-auto h-24 w-24 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+        </svg>
+        <h3 class="mt-6 text-xl font-medium text-gray-900">Geen resultaten gevonden</h3>
+        <p class="mt-2 text-gray-600 mb-6">
+            Je zoekopdracht "{{ search_query }}" leverde geen resultaten op.
+        </p>
+        
+        <!-- Search Suggestions -->
+        <div class="max-w-md mx-auto">
+            <h4 class="text-sm font-medium text-gray-900 mb-4">Probeer het eens met:</h4>
+            <div class="space-y-2 text-sm text-gray-600">
+                <p>• Andere zoektermen of synoniemen</p>
+                <p>• Minder specifieke zoektermen</p>
+                <p>• Controleer de spelling</p>
+            </div>
+            
+            <div class="mt-6">
+                <a href="/products" class="inline-flex items-center px-4 py-2 bg-primary text-white rounded-lg hover:bg-blue-600 transition-colors">
+                    Bekijk alle producten
+                </a>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<style>
+.line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+</style>
+{% endblock %}

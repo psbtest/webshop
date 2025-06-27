@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Admin Panel{% endblock %} - {{ app.name }}</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Custom Admin CSS -->
+    <link href="/assets/css/admin.css" rel="stylesheet">
+    
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    {% block head %}{% endblock %}
+</head>
+<body class="bg-gray-100">
+    <div class="min-h-screen flex">
+        <!-- Sidebar -->
+        <div class="fixed inset-y-0 left-0 z-50 w-64 bg-gray-900 transform -translate-x-full transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0" id="sidebar">
+            <div class="flex items-center justify-center h-16 bg-gray-900 border-b border-gray-800">
+                <h1 class="text-white text-xl font-bold">Admin Panel</h1>
+            </div>
+            
+            <nav class="mt-8">
+                <div class="px-4 space-y-2">
+                    <!-- Dashboard -->
+                    <a href="/admin/dashboard" class="flex items-center px-4 py-2 text-gray-300 hover:bg-gray-700 hover:text-white rounded-md {% if current_route == 'admin.dashboard' %}bg-gray-700 text-white{% endif %}">
+                        <i class="fas fa-tachometer-alt mr-3"></i>
+                        Dashboard
+                    </a>
+                    
+                    <!-- Products -->
+                    <div class="space-y-1">
+                        <button class="flex items-center w-full px-4 py-2 text-gray-300 hover:bg-gray-700 hover:text-white rounded-md focus:outline-none" onclick="toggleSubmenu('products-menu')">
+                            <i class="fas fa-box mr-3"></i>
+                            Products
+                            <i class="fas fa-chevron-down ml-auto transition-transform" id="products-menu-icon"></i>
+                        </button>
+                        <div class="pl-8 space-y-1 hidden" id="products-menu">
+                            <a href="/admin/products" class="block px-4 py-2 text-sm text-gray-400 hover:text-white rounded-md {% if current_route == 'admin.products.index' %}text-white{% endif %}">
+                                All Products
+                            </a>
+                            <a href="/admin/products/create" class="block px-4 py-2 text-sm text-gray-400 hover:text-white rounded-md {% if current_route == 'admin.products.create' %}text-white{% endif %}">
+                                Add Product
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <!-- Categories -->
+                    <div class="space-y-1">
+                        <button class="flex items-center w-full px-4 py-2 text-gray-300 hover:bg-gray-700 hover:text-white rounded-md focus:outline-none" onclick="toggleSubmenu('categories-menu')">
+                            <i class="fas fa-tags mr-3"></i>
+                            Categories
+                            <i class="fas fa-chevron-down ml-auto transition-transform" id="categories-menu-icon"></i>
+                        </button>
+                        <div class="pl-8 space-y-1 hidden" id="categories-menu">
+                            <a href="/admin/categories" class="block px-4 py-2 text-sm text-gray-400 hover:text-white rounded-md {% if current_route == 'admin.categories.index' %}text-white{% endif %}">
+                                All Categories
+                            </a>
+                            <a href="/admin/categories/create" class="block px-4 py-2 text-sm text-gray-400 hover:text-white rounded-md {% if current_route == 'admin.categories.create' %}text-white{% endif %}">
+                                Add Category
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <!-- Orders -->
+                    <a href="/admin/orders" class="flex items-center px-4 py-2 text-gray-300 hover:bg-gray-700 hover:text-white rounded-md {% if current_route == 'admin.orders.index' %}bg-gray-700 text-white{% endif %}">
+                        <i class="fas fa-shopping-cart mr-3"></i>
+                        Orders
+                    </a>
+                    
+                    <!-- Pages -->
+                    <div class="space-y-1">
+                        <button class="flex items-center w-full px-4 py-2 text-gray-300 hover:bg-gray-700 hover:text-white rounded-md focus:outline-none" onclick="toggleSubmenu('pages-menu')">
+                            <i class="fas fa-file-alt mr-3"></i>
+                            Pages
+                            <i class="fas fa-chevron-down ml-auto transition-transform" id="pages-menu-icon"></i>
+                        </button>
+                        <div class="pl-8 space-y-1 hidden" id="pages-menu">
+                            <a href="/admin/pages" class="block px-4 py-2 text-sm text-gray-400 hover:text-white rounded-md {% if current_route == 'admin.pages.index' %}text-white{% endif %}">
+                                All Pages
+                            </a>
+                            <a href="/admin/pages/create" class="block px-4 py-2 text-sm text-gray-400 hover:text-white rounded-md {% if current_route == 'admin.pages.create' %}text-white{% endif %}">
+                                Add Page
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <!-- Settings -->
+                    <a href="/admin/settings" class="flex items-center px-4 py-2 text-gray-300 hover:bg-gray-700 hover:text-white rounded-md">
+                        <i class="fas fa-cog mr-3"></i>
+                        Settings
+                    </a>
+                </div>
+                
+                <!-- Logout -->
+                <div class="absolute bottom-0 w-full p-4">
+                    <a href="/admin/logout" class="flex items-center px-4 py-2 text-gray-300 hover:bg-gray-700 hover:text-white rounded-md">
+                        <i class="fas fa-sign-out-alt mr-3"></i>
+                        Logout
+                    </a>
+                </div>
+            </nav>
+        </div>
+        
+        <!-- Mobile sidebar overlay -->
+        <div class="fixed inset-0 bg-gray-600 bg-opacity-75 z-40 lg:hidden hidden" id="sidebar-overlay" onclick="toggleSidebar()"></div>
+        
+        <!-- Main content -->
+        <div class="flex-1 flex flex-col lg:ml-0">
+            <!-- Top navigation -->
+            <header class="bg-white shadow-sm border-b border-gray-200">
+                <div class="flex items-center justify-between px-6 py-4">
+                    <div class="flex items-center">
+                        <button class="lg:hidden text-gray-500 hover:text-gray-700 focus:outline-none focus:text-gray-700" onclick="toggleSidebar()">
+                            <i class="fas fa-bars text-xl"></i>
+                        </button>
+                        <h2 class="ml-4 lg:ml-0 text-xl font-semibold text-gray-800">
+                            {% block page_title %}Dashboard{% endblock %}
+                        </h2>
+                    </div>
+                    
+                    <div class="flex items-center space-x-4">
+                        <!-- Notifications -->
+                        <div class="relative">
+                            <button class="text-gray-500 hover:text-gray-700 focus:outline-none" onclick="toggleDropdown('notifications')">
+                                <i class="fas fa-bell text-xl"></i>
+                                <span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">3</span>
+                            </button>
+                            
+                            <div class="absolute right-0 mt-2 w-80 bg-white rounded-md shadow-lg py-1 z-50 hidden" id="notifications">
+                                <div class="px-4 py-2 text-sm text-gray-700 border-b">Notifications</div>
+                                <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">New order received</a>
+                                <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Product stock low</a>
+                                <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Customer message</a>
+                            </div>
+                        </div>
+                        
+                        <!-- User menu -->
+                        <div class="relative">
+                            <button class="flex items-center text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" onclick="toggleDropdown('user-menu')">
+                                <img class="h-8 w-8 rounded-full" src="https://ui-avatars.com/api/?name={{ current_user.name }}&background=6366f1&color=fff" alt="User avatar">
+                                <span class="ml-2 text-gray-700">{{ current_user.name }}</span>
+                                <i class="fas fa-chevron-down ml-1 text-gray-500"></i>
+                            </button>
+                            
+                            <div class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50 hidden" id="user-menu">
+                                <a href="/admin/profile" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Profile</a>
+                                <a href="/admin/settings" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Settings</a>
+                                <div class="border-t border-gray-100"></div>
+                                <a href="/admin/logout" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Sign out</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+            
+            <!-- Page content -->
+            <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-100">
+                <div class="container mx-auto px-6 py-8">
+                    {% block content %}{% endblock %}
+                </div>
+            </main>
+        </div>
+    </div>
+    
+    <!-- Scripts -->
+    <script src="/assets/js/admin.js"></script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

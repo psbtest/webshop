@@ -1,0 +1,270 @@
+{% extends "base.twig" %}
+
+{% block title %}Shopping Cart - {{ parent() }}{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <!-- Breadcrumbs -->
+    {% include 'components/breadcrumbs.twig' with {
+        'items': [
+            {'name': 'Home', 'url': '/'},
+            {'name': 'Shopping Cart', 'url': null}
+        ]
+    } %}
+
+    <h1 class="text-3xl font-bold text-gray-800 mb-8">Shopping Cart</h1>
+
+    {% if cart_items|length > 0 %}
+        <div class="lg:grid lg:grid-cols-12 lg:gap-x-12 lg:items-start">
+            <!-- Cart Items -->
+            <div class="lg:col-span-7">
+                <div class="bg-white shadow rounded-lg">
+                    <div class="px-4 py-6 sm:px-6">
+                        <div class="flow-root">
+                            <ul class="-my-6 divide-y divide-gray-200">
+                                {% for item in cart_items %}
+                                    <li class="flex py-6" data-item-id="{{ item.id }}">
+                                        <div class="flex-shrink-0 w-24 h-24 border border-gray-200 rounded-md overflow-hidden">
+                                            {% if item.product.image %}
+                                                <img src="/assets/images/uploads/products/{{ item.product.image }}" 
+                                                     alt="{{ item.product.name }}" 
+                                                     class="w-full h-full object-center object-cover">
+                                            {% else %}
+                                                <div class="w-full h-full bg-gray-200 flex items-center justify-center">
+                                                    <svg class="w-8 h-8 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                                                        <path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd"></path>
+                                                    </svg>
+                                                </div>
+                                            {% endif %}
+                                        </div>
+
+                                        <div class="ml-4 flex-1 flex flex-col">
+                                            <div>
+                                                <div class="flex justify-between text-base font-medium text-gray-900">
+                                                    <h3>
+                                                        <a href="/products/{{ item.product.slug }}" class="hover:text-blue-600">
+                                                            {{ item.product.name }}
+                                                        </a>
+                                                    </h3>
+                                                    <p class="ml-4">€{{ (item.product.price * item.quantity)|number_format(2, ',', '.') }}</p>
+                                                </div>
+                                                {% if item.product.description %}
+                                                    <p class="mt-1 text-sm text-gray-500 line-clamp-2">{{ item.product.description }}</p>
+                                                {% endif %}
+                                            </div>
+                                            <div class="flex-1 flex items-end justify-between text-sm">
+                                                <div class="flex items-center">
+                                                    <label for="quantity-{{ item.id }}" class="sr-only">Quantity</label>
+                                                    <div class="flex items-center border border-gray-300 rounded">
+                                                        <button type="button" class="quantity-decrease p-2 hover:bg-gray-100" data-item-id="{{ item.id }}">
+                                                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                                                <path fill-rule="evenodd" d="M3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd"></path>
+                                                            </svg>
+                                                        </button>
+                                                        <input type="number" 
+                                                               id="quantity-{{ item.id }}" 
+                                                               name="quantity" 
+                                                               value="{{ item.quantity }}" 
+                                                               min="1" 
+                                                               max="10"
+                                                               class="w-16 text-center border-0 focus:ring-0 focus:outline-none quantity-input"
+                                                               data-item-id="{{ item.id }}"
+                                                               data-price="{{ item.product.price }}">
+                                                        <button type="button" class="quantity-increase p-2 hover:bg-gray-100" data-item-id="{{ item.id }}">
+                                                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                                                <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"></path>
+                                                            </svg>
+                                                        </button>
+                                                    </div>
+                                                    <span class="ml-2 text-sm text-gray-500">× €{{ item.product.price|number_format(2, ',', '.') }}</span>
+                                                </div>
+
+                                                <div class="flex">
+                                                    <button type="button" 
+                                                            class="remove-item font-medium text-red-600 hover:text-red-500" 
+                                                            data-item-id="{{ item.id }}">
+                                                        Remove
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Continue Shopping -->
+                <div class="mt-6">
+                    <a href="/products" class="inline-flex items-center text-sm font-medium text-blue-600 hover:text-blue-500">
+                        <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M7.707 14.707a1 1 0 01-1.414 0L2.586 11H16a1 1 0 110 2H2.586l3.707 3.707a1 1 0 01-1.414 1.414l-5.5-5.5a1 1 0 010-1.414l5.5-5.5a1 1 0 011.414 1.414L2.586 9H16a1 1 0 110 2H7.707z" clip-rule="evenodd"></path>
+                        </svg>
+                        Continue Shopping
+                    </a>
+                </div>
+            </div>
+
+            <!-- Order Summary -->
+            <div class="mt-16 bg-gray-50 rounded-lg px-4 py-6 sm:p-6 lg:p-8 lg:mt-0 lg:col-span-5">
+                <h2 class="text-lg font-medium text-gray-900">Order Summary</h2>
+
+                <div class="mt-6 space-y-4">
+                    <div class="flex items-center justify-between">
+                        <dt class="text-sm text-gray-600">Subtotal</dt>
+                        <dd class="text-sm font-medium text-gray-900" id="cart-subtotal">€{{ cart_subtotal|number_format(2, ',', '.') }}</dd>
+                    </div>
+                    
+                    <div class="flex items-center justify-between">
+                        <dt class="text-sm text-gray-600">Shipping</dt>
+                        <dd class="text-sm font-medium text-gray-900">€{{ shipping_cost|number_format(2, ',', '.') }}</dd>
+                    </div>
+                    
+                    <div class="flex items-center justify-between">
+                        <dt class="text-sm text-gray-600">Tax</dt>
+                        <dd class="text-sm font-medium text-gray-900" id="cart-tax">€{{ cart_tax|number_format(2, ',', '.') }}</dd>
+                    </div>
+                    
+                    <div class="flex items-center justify-between border-t border-gray-200 pt-4">
+                        <dt class="text-base font-medium text-gray-900">Order total</dt>
+                        <dd class="text-base font-medium text-gray-900" id="cart-total">€{{ cart_total|number_format(2, ',', '.') }}</dd>
+                    </div>
+                </div>
+
+                <div class="mt-6">
+                    <a href="/checkout" 
+                       class="w-full bg-blue-600 border border-transparent rounded-md shadow-sm py-3 px-4 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-50 focus:ring-blue-500 text-center block">
+                        Proceed to Checkout
+                    </a>
+                </div>
+
+                <div class="mt-6 text-center">
+                    <p class="text-sm text-gray-500">
+                        or 
+                        <a href="/products" class="text-blue-600 font-medium hover:text-blue-500">
+                            Continue Shopping
+                        </a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    {% else %}
+        {% include 'cart/empty.twig' %}
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Quantity update functionality
+    document.querySelectorAll('.quantity-increase, .quantity-decrease').forEach(button => {
+        button.addEventListener('click', function() {
+            const itemId = this.getAttribute('data-item-id');
+            const input = document.querySelector(`input[data-item-id="${itemId}"]`);
+            const isIncrease = this.classList.contains('quantity-increase');
+            
+            let newQuantity = parseInt(input.value);
+            if (isIncrease) {
+                newQuantity = Math.min(newQuantity + 1, 10);
+            } else {
+                newQuantity = Math.max(newQuantity - 1, 1);
+            }
+            
+            input.value = newQuantity;
+            updateCartItem(itemId, newQuantity);
+        });
+    });
+
+    // Direct quantity input
+    document.querySelectorAll('.quantity-input').forEach(input => {
+        input.addEventListener('change', function() {
+            const itemId = this.getAttribute('data-item-id');
+            const quantity = Math.max(1, Math.min(parseInt(this.value) || 1, 10));
+            this.value = quantity;
+            updateCartItem(itemId, quantity);
+        });
+    });
+
+    // Remove item functionality
+    document.querySelectorAll('.remove-item').forEach(button => {
+        button.addEventListener('click', function() {
+            const itemId = this.getAttribute('data-item-id');
+            if (confirm('Are you sure you want to remove this item from your cart?')) {
+                removeCartItem(itemId);
+            }
+        });
+    });
+
+    function updateCartItem(itemId, quantity) {
+        fetch('/cart/update', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: JSON.stringify({
+                item_id: itemId,
+                quantity: quantity
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                updateCartTotals(data.cart);
+                updateItemTotal(itemId, data.item_total);
+            } else {
+                alert('Error updating cart: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error updating cart');
+        });
+    }
+
+    function removeCartItem(itemId) {
+        fetch('/cart/remove', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: JSON.stringify({
+                item_id: itemId
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                document.querySelector(`[data-item-id="${itemId}"]`).remove();
+                updateCartTotals(data.cart);
+                
+                // If cart is empty, redirect to empty cart page
+                if (data.cart.items_count === 0) {
+                    window.location.reload();
+                }
+            } else {
+                alert('Error removing item: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error removing item');
+        });
+    }
+
+    function updateCartTotals(cart) {
+        document.getElementById('cart-subtotal').textContent = '€' + parseFloat(cart.subtotal).toFixed(2);
+        document.getElementById('cart-tax').textContent = '€' + parseFloat(cart.tax).toFixed(2);
+        document.getElementById('cart-total').textContent = '€' + parseFloat(cart.total).toFixed(2);
+    }
+
+    function updateItemTotal(itemId, total) {
+        // Update the item total display if needed
+        // This would update the price display for the specific item
+    }
+});
+</script>
+{% endblock %}

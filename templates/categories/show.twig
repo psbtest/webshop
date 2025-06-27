@@ -1,0 +1,126 @@
+{% extends "base.twig" %}
+
+{% block title %}{{ category.name }} - Categories - {{ parent() }}{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <!-- Breadcrumbs -->
+    {% include 'components/breadcrumbs.twig' with {
+        'items': [
+            {'name': 'Home', 'url': '/'},
+            {'name': 'Categories', 'url': '/categories'},
+            {'name': category.name, 'url': null}
+        ]
+    } %}
+
+    <!-- Category Header -->
+    <div class="mb-8">
+        {% if category.image %}
+            <div class="w-full h-64 bg-gray-200 rounded-lg mb-6 overflow-hidden">
+                <img src="/assets/images/uploads/categories/{{ category.image }}" 
+                     alt="{{ category.name }}" 
+                     class="w-full h-full object-cover">
+            </div>
+        {% endif %}
+        
+        <div class="flex justify-between items-start">
+            <div>
+                <h1 class="text-4xl font-bold text-gray-800 mb-4">{{ category.name }}</h1>
+                {% if category.description %}
+                    <p class="text-lg text-gray-600 max-w-3xl">{{ category.description }}</p>
+                {% endif %}
+            </div>
+            <div class="text-right">
+                <span class="text-sm text-gray-500">{{ products|length }} products</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters and Sorting -->
+    <div class="flex flex-wrap justify-between items-center mb-6 bg-white p-4 rounded-lg shadow-sm">
+        <div class="flex items-center space-x-4 mb-2 sm:mb-0">
+            <label for="sort" class="text-sm font-medium text-gray-700">Sort by:</label>
+            <select id="sort" name="sort" class="border border-gray-300 rounded-md px-3 py-1 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                <option value="name_asc">Name (A-Z)</option>
+                <option value="name_desc">Name (Z-A)</option>
+                <option value="price_asc">Price (Low to High)</option>
+                <option value="price_desc">Price (High to Low)</option>
+                <option value="newest">Newest First</option>
+            </select>
+        </div>
+        
+        <div class="flex items-center space-x-2">
+            <button id="grid-view" class="p-2 text-gray-600 hover:text-blue-600 border rounded">
+                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM5 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5zM11 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5zM11 13a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path>
+                </svg>
+            </button>
+            <button id="list-view" class="p-2 text-gray-600 hover:text-blue-600 border rounded">
+                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd"></path>
+                </svg>
+            </button>
+        </div>
+    </div>
+
+    <!-- Products Grid -->
+    {% if products|length > 0 %}
+        <div id="products-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {% for product in products %}
+                {% include 'components/product-card.twig' with {'product': product} %}
+            {% endfor %}
+        </div>
+
+        <!-- Pagination -->
+        {% if pagination.total_pages > 1 %}
+            <div class="mt-12">
+                {% include 'components/pagination.twig' with {'pagination': pagination} %}
+            </div>
+        {% endif %}
+    {% else %}
+        <div class="text-center py-12">
+            <div class="max-w-md mx-auto">
+                <svg class="w-24 h-24 text-gray-300 mx-auto mb-4" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 2L3 7v11a2 2 0 002 2h10a2 2 0 002-2V7l-7-5zM10 18V8.618l5-3.5V15a1 1 0 01-1 1H6a1 1 0 01-1-1V5.118l5 3.5V18z" clip-rule="evenodd"></path>
+                </svg>
+                <h3 class="text-lg font-medium text-gray-900 mb-2">No products in this category</h3>
+                <p class="text-gray-500 mb-4">This category doesn't have any products yet.</p>
+                <a href="/products" class="inline-flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-md font-semibold text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                    Browse All Products
+                </a>
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // View toggle functionality
+    const gridView = document.getElementById('grid-view');
+    const listView = document.getElementById('list-view');
+    const container = document.getElementById('products-container');
+    
+    gridView.addEventListener('click', function() {
+        container.className = 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6';
+        gridView.classList.add('text-blue-600', 'bg-blue-50');
+        listView.classList.remove('text-blue-600', 'bg-blue-50');
+    });
+    
+    listView.addEventListener('click', function() {
+        container.className = 'space-y-4';
+        listView.classList.add('text-blue-600', 'bg-blue-50');
+        gridView.classList.remove('text-blue-600', 'bg-blue-50');
+    });
+    
+    // Sort functionality
+    const sortSelect = document.getElementById('sort');
+    sortSelect.addEventListener('change', function() {
+        const url = new URL(window.location);
+        url.searchParams.set('sort', this.value);
+        window.location.href = url.toString();
+    });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,10 @@
+parameters:
+    level: 8
+    paths:
+        - src
+        - tests
+    ignoreErrors:
+        - '#Call to an undefined method PDO::#'
+        - '#Cannot call method fetch.*\(\) on PDOStatement\|false#'
+    excludePaths:
+        - vendor
