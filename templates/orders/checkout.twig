@@ -1,0 +1,221 @@
+{% extends "base.twig" %}
+
+{% block title %}Checkout - {{ parent() }}{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <!-- Breadcrumbs -->
+    {% include 'components/breadcrumbs.twig' with {
+        'items': [
+            {'name': 'Home', 'url': '/'},
+            {'name': 'Cart', 'url': '/cart'},
+            {'name': 'Checkout', 'url': null}
+        ]
+    } %}
+
+    <h1 class="text-3xl font-bold text-gray-800 mb-8">Checkout</h1>
+
+    <div class="lg:grid lg:grid-cols-12 lg:gap-x-12 lg:items-start">
+        <!-- Checkout Form -->
+        <div class="lg:col-span-7">
+            <form action="/checkout" method="POST" id="checkout-form">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                
+                <!-- Customer Information -->
+                <div class="bg-white shadow rounded-lg p-6 mb-6">
+                    <h2 class="text-lg font-medium text-gray-900 mb-4">Contact Information</h2>
+                    
+                    <div class="space-y-4">
+                        <div>
+                            <label for="customer_name" class="block text-sm font-medium text-gray-700">Full Name *</label>
+                            <input type="text" id="customer_name" name="customer_name" required
+                                   class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary sm:text-sm"
+                                   value="{{ old.customer_name|default('') }}">
+                        </div>
+                        
+                        <div>
+                            <label for="customer_email" class="block text-sm font-medium text-gray-700">Email Address *</label>
+                            <input type="email" id="customer_email" name="customer_email" required
+                                   class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary sm:text-sm"
+                                   value="{{ old.customer_email|default('') }}">
+                        </div>
+                        
+                        <div>
+                            <label for="customer_phone" class="block text-sm font-medium text-gray-700">Phone Number</label>
+                            <input type="tel" id="customer_phone" name="customer_phone"
+                                   class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary sm:text-sm"
+                                   value="{{ old.customer_phone|default('') }}">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Shipping Address -->
+                <div class="bg-white shadow rounded-lg p-6 mb-6">
+                    <h2 class="text-lg font-medium text-gray-900 mb-4">Shipping Address</h2>
+                    
+                    <div class="space-y-4">
+                        <div>
+                            <label for="customer_address" class="block text-sm font-medium text-gray-700">Address *</label>
+                            <textarea id="customer_address" name="customer_address" rows="3" required
+                                      class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary sm:text-sm"
+                                      placeholder="Street address, city, postal code, country">{{ old.customer_address|default('') }}</textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Payment Method -->
+                <div class="bg-white shadow rounded-lg p-6 mb-6">
+                    <h2 class="text-lg font-medium text-gray-900 mb-4">Payment Method</h2>
+                    
+                    <div class="space-y-4">
+                        <div class="flex items-center">
+                            <input id="payment_ideal" name="payment_method" type="radio" value="ideal" checked
+                                   class="focus:ring-primary h-4 w-4 text-primary border-gray-300">
+                            <label for="payment_ideal" class="ml-3 block text-sm font-medium text-gray-700">
+                                iDEAL
+                            </label>
+                        </div>
+                        
+                        <div class="flex items-center">
+                            <input id="payment_creditcard" name="payment_method" type="radio" value="creditcard"
+                                   class="focus:ring-primary h-4 w-4 text-primary border-gray-300">
+                            <label for="payment_creditcard" class="ml-3 block text-sm font-medium text-gray-700">
+                                Credit Card
+                            </label>
+                        </div>
+                        
+                        <div class="flex items-center">
+                            <input id="payment_banktransfer" name="payment_method" type="radio" value="banktransfer"
+                                   class="focus:ring-primary h-4 w-4 text-primary border-gray-300">
+                            <label for="payment_banktransfer" class="ml-3 block text-sm font-medium text-gray-700">
+                                Bank Transfer
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Terms and Conditions -->
+                <div class="bg-white shadow rounded-lg p-6 mb-6">
+                    <div class="flex items-start">
+                        <div class="flex items-center h-5">
+                            <input id="terms" name="terms" type="checkbox" required
+                                   class="focus:ring-primary h-4 w-4 text-primary border-gray-300 rounded">
+                        </div>
+                        <div class="ml-3 text-sm">
+                            <label for="terms" class="font-medium text-gray-700">
+                                I agree to the <a href="/pages/terms" class="text-primary hover:underline">Terms and Conditions</a> 
+                                and <a href="/pages/privacy" class="text-primary hover:underline">Privacy Policy</a>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- Order Summary -->
+        <div class="mt-10 lg:mt-0 lg:col-span-5">
+            <div class="bg-gray-50 rounded-lg px-4 py-6 sm:p-6 lg:p-8 sticky top-24">
+                <h2 class="text-lg font-medium text-gray-900 mb-4">Order Summary</h2>
+
+                <!-- Cart Items -->
+                <div class="flow-root">
+                    <ul class="-my-4 divide-y divide-gray-200">
+                        {% for item in cart_items %}
+                        <li class="flex py-4">
+                            <div class="flex-shrink-0 w-16 h-16 border border-gray-200 rounded-md overflow-hidden">
+                                {% if item.image %}
+                                <img src="/assets/images/uploads/products/{{ item.image }}" alt="{{ item.name }}" class="w-full h-full object-center object-cover">
+                                {% else %}
+                                <div class="w-full h-full bg-gray-200 flex items-center justify-center">
+                                    <svg class="w-6 h-6 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd"/>
+                                    </svg>
+                                </div>
+                                {% endif %}
+                            </div>
+
+                            <div class="ml-4 flex-1">
+                                <div class="flex justify-between text-base font-medium text-gray-900">
+                                    <h3>{{ item.name }}</h3>
+                                    <p class="ml-4">€{{ (item.price * item.quantity)|number_format(2, ',', '.') }}</p>
+                                </div>
+                                <p class="mt-1 text-sm text-gray-500">Qty {{ item.quantity }}</p>
+                            </div>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+
+                <!-- Order Totals -->
+                <div class="border-t border-gray-200 pt-4 mt-6">
+                    <div class="flex justify-between text-base font-medium text-gray-900">
+                        <p>Subtotal</p>
+                        <p>€{{ subtotal|number_format(2, ',', '.') }}</p>
+                    </div>
+                    <div class="flex justify-between text-sm text-gray-600 mt-2">
+                        <p>Shipping</p>
+                        <p>€{{ shipping|number_format(2, ',', '.') }}</p>
+                    </div>
+                    <div class="flex justify-between text-sm text-gray-600 mt-2">
+                        <p>Tax</p>
+                        <p>€{{ tax|number_format(2, ',', '.') }}</p>
+                    </div>
+                    <div class="border-t border-gray-200 pt-4 mt-4">
+                        <div class="flex justify-between text-lg font-medium text-gray-900">
+                            <p>Total</p>
+                            <p>€{{ total|number_format(2, ',', '.') }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Place Order Button -->
+                <div class="mt-6">
+                    <button type="submit" form="checkout-form"
+                            class="w-full bg-primary border border-transparent rounded-md shadow-sm py-3 px-4 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-50 focus:ring-primary">
+                        Place Order
+                    </button>
+                </div>
+
+                <!-- Security Notice -->
+                <div class="mt-6 text-center">
+                    <div class="flex items-center justify-center text-sm text-gray-500">
+                        <svg class="w-4 h-4 mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                        </svg>
+                        Secure checkout powered by SSL encryption
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('checkout-form');
+    
+    form.addEventListener('submit', function(e) {
+        const termsCheckbox = document.getElementById('terms');
+        if (!termsCheckbox.checked) {
+            e.preventDefault();
+            alert('Please accept the terms and conditions to continue.');
+            return false;
+        }
+        
+        // Show loading state
+        const submitButton = form.querySelector('button[type="submit"]');
+        const originalText = submitButton.textContent;
+        submitButton.textContent = 'Processing...';
+        submitButton.disabled = true;
+        
+        // Re-enable button after 30 seconds as fallback
+        setTimeout(() => {
+            submitButton.textContent = originalText;
+            submitButton.disabled = false;
+        }, 30000);
+    });
+});
+</script>
+{% endblock %}

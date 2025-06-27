@@ -1,0 +1,35 @@
+{% extends "base.twig" %}
+
+{% block title %}Page Not Found - {{ parent() }}{% endblock %}
+
+{% block content %}
+<div class="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-md w-full space-y-8 text-center">
+        <div>
+            <h1 class="text-9xl font-bold text-primary">404</h1>
+            <h2 class="mt-6 text-3xl font-extrabold text-gray-900">
+                Page not found
+            </h2>
+            <p class="mt-2 text-sm text-gray-600">
+                Sorry, we couldn't find the page you're looking for.
+            </p>
+        </div>
+        
+        <div class="mt-8 space-y-4">
+            <a href="/" class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
+                Go back home
+            </a>
+            <a href="/products" class="w-full flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
+                Browse products
+            </a>
+        </div>
+        
+        <div class="mt-6">
+            <p class="text-xs text-gray-500">
+                If you think this is an error, please 
+                <a href="/pages/contact" class="text-primary hover:underline">contact us</a>.
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}

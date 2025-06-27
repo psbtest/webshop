@@ -1,0 +1,59 @@
+{% if pagination.total_pages > 1 %}
+<nav class="flex items-center justify-between border-t border-gray-200 bg-white px-4 py-3 sm:px-6" aria-label="Pagination">
+    <div class="hidden sm:block">
+        <p class="text-sm text-gray-700">
+            Showing
+            <span class="font-medium">{{ pagination.from }}</span>
+            to
+            <span class="font-medium">{{ pagination.to }}</span>
+            of
+            <span class="font-medium">{{ pagination.total }}</span>
+            results
+        </p>
+    </div>
+    <div class="flex flex-1 justify-between sm:justify-end">
+        <!-- Previous Page -->
+        {% if pagination.current_page > 1 %}
+            <a href="{{ pagination.prev_url }}" class="relative inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
+                Previous
+            </a>
+        {% else %}
+            <span class="relative inline-flex items-center rounded-md border border-gray-300 bg-gray-100 px-4 py-2 text-sm font-medium text-gray-400 cursor-not-allowed">
+                Previous
+            </span>
+        {% endif %}
+
+        <!-- Page Numbers (Desktop) -->
+        <div class="hidden md:flex">
+            {% for page in pagination.links %}
+                {% if page.url %}
+                    {% if page.label == pagination.current_page %}
+                        <span class="relative z-10 inline-flex items-center border border-primary bg-primary px-4 py-2 text-sm font-medium text-white focus:z-20">
+                            {{ page.label }}
+                        </span>
+                    {% elseif page.label == '...' %}
+                        <span class="relative inline-flex items-center border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700">
+                            {{ page.label }}
+                        </span>
+                    {% else %}
+                        <a href="{{ page.url }}" class="relative inline-flex items-center border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-500 hover:bg-gray-50 focus:z-20">
+                            {{ page.label }}
+                        </a>
+                    {% endif %}
+                {% endif %}
+            {% endfor %}
+        </div>
+
+        <!-- Next Page -->
+        {% if pagination.current_page < pagination.total_pages %}
+            <a href="{{ pagination.next_url }}" class="relative ml-3 inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
+                Next
+            </a>
+        {% else %}
+            <span class="relative ml-3 inline-flex items-center rounded-md border border-gray-300 bg-gray-100 px-4 py-2 text-sm font-medium text-gray-400 cursor-not-allowed">
+                Next
+            </span>
+        {% endif %}
+    </div>
+</nav>
+{% endif %}

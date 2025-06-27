@@ -1,0 +1,140 @@
+{% extends "base.twig" %}
+
+{% block title %}Order Confirmation - {{ parent() }}{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="max-w-3xl mx-auto">
+        <!-- Success Header -->
+        <div class="text-center mb-8">
+            <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-green-100 mb-4">
+                <svg class="h-8 w-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                </svg>
+            </div>
+            <h1 class="text-3xl font-bold text-gray-900 mb-2">Order Confirmed!</h1>
+            <p class="text-lg text-gray-600">Thank you for your purchase. Your order has been successfully placed.</p>
+        </div>
+
+        <!-- Order Details -->
+        <div class="bg-white shadow rounded-lg p-6 mb-8">
+            <h2 class="text-lg font-medium text-gray-900 mb-4">Order Details</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <h3 class="text-sm font-medium text-gray-500 uppercase tracking-wide">Order Information</h3>
+                    <div class="mt-2 space-y-1">
+                        <p class="text-sm text-gray-900"><span class="font-medium">Order Number:</span> #{{ order.id }}</p>
+                        <p class="text-sm text-gray-900"><span class="font-medium">Order Date:</span> {{ order.created_at|date('F j, Y') }}</p>
+                        <p class="text-sm text-gray-900"><span class="font-medium">Status:</span> 
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                {{ order.status|title }}
+                            </span>
+                        </p>
+                        <p class="text-sm text-gray-900"><span class="font-medium">Total:</span> €{{ order.total_amount|number_format(2, ',', '.') }}</p>
+                    </div>
+                </div>
+                
+                <div>
+                    <h3 class="text-sm font-medium text-gray-500 uppercase tracking-wide">Customer Information</h3>
+                    <div class="mt-2 space-y-1">
+                        <p class="text-sm text-gray-900"><span class="font-medium">Name:</span> {{ order.customer_name }}</p>
+                        <p class="text-sm text-gray-900"><span class="font-medium">Email:</span> {{ order.customer_email }}</p>
+                        {% if order.customer_phone %}
+                        <p class="text-sm text-gray-900"><span class="font-medium">Phone:</span> {{ order.customer_phone }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mt-6">
+                <h3 class="text-sm font-medium text-gray-500 uppercase tracking-wide">Shipping Address</h3>
+                <div class="mt-2">
+                    <p class="text-sm text-gray-900">{{ order.customer_address|nl2br }}</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Order Items -->
+        <div class="bg-white shadow rounded-lg p-6 mb-8">
+            <h2 class="text-lg font-medium text-gray-900 mb-4">Order Items</h2>
+            
+            <div class="flow-root">
+                <ul class="-my-4 divide-y divide-gray-200">
+                    {% for item in items %}
+                    <li class="flex py-4">
+                        <div class="flex-shrink-0 w-16 h-16 border border-gray-200 rounded-md overflow-hidden">
+                            {% if item.product_image %}
+                            <img src="/assets/images/uploads/products/{{ item.product_image }}" alt="{{ item.product_name }}" class="w-full h-full object-center object-cover">
+                            {% else %}
+                            <div class="w-full h-full bg-gray-200 flex items-center justify-center">
+                                <svg class="w-6 h-6 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd"/>
+                                </svg>
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="ml-4 flex-1">
+                            <div class="flex justify-between">
+                                <div>
+                                    <h3 class="text-base font-medium text-gray-900">{{ item.product_name }}</h3>
+                                    <p class="mt-1 text-sm text-gray-500">Quantity: {{ item.quantity }}</p>
+                                    <p class="mt-1 text-sm text-gray-500">Unit Price: €{{ item.price|number_format(2, ',', '.') }}</p>
+                                </div>
+                                <div class="text-right">
+                                    <p class="text-base font-medium text-gray-900">€{{ (item.price * item.quantity)|number_format(2, ',', '.') }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+
+        <!-- What's Next -->
+        <div class="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-8">
+            <h2 class="text-lg font-medium text-blue-900 mb-4">What's Next?</h2>
+            <div class="space-y-3 text-sm text-blue-800">
+                <div class="flex items-start">
+                    <svg class="w-5 h-5 text-blue-500 mr-2 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                    </svg>
+                    <p>You'll receive an order confirmation email at {{ order.customer_email }}</p>
+                </div>
+                <div class="flex items-start">
+                    <svg class="w-5 h-5 text-blue-500 mr-2 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+                    </svg>
+                    <p>We'll send you shipping updates when your order is processed</p>
+                </div>
+                <div class="flex items-start">
+                    <svg class="w-5 h-5 text-blue-500 mr-2 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    <p>Estimated delivery: 2-3 business days</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="flex flex-col sm:flex-row gap-4 justify-center">
+            <a href="/products" class="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-primary hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
+                Continue Shopping
+            </a>
+            <a href="/orders/track?order_id={{ order.id }}&email={{ order.customer_email }}" class="inline-flex items-center justify-center px-6 py-3 border border-gray-300 text-base font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
+                Track Your Order
+            </a>
+        </div>
+
+        <!-- Help Section -->
+        <div class="mt-8 text-center">
+            <p class="text-sm text-gray-600">
+                Need help with your order? 
+                <a href="/pages/contact" class="text-primary hover:underline font-medium">Contact our support team</a>
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}
