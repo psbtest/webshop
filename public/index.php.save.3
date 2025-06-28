@@ -1,0 +1,99 @@
+<?php
+declare(strict_types=1);
+
+require_once __DIR__ . '/../vendor/autoload.php';
+
+use App\Core\Application;
+use App\Controllers\HomeController;
+use App\Controllers\ProductController;
+use App\Controllers\CategoryController;
+use App\Controllers\CartController;
+use App\Controllers\OrderController;
+use App\Controllers\PageController;
+use App\Controllers\Admin\AdminController;
+use App\Controllers\Admin\AdminProductController;
+use App\Controllers\Admin\AdminCategoryController;
+use App\Controllers\Admin\AdminOrderController;
+use App\Controllers\Admin\AdminPageController;
+use App\Controllers\Api\OrderApiController;
+use App\Middleware\AdminMiddleware;
+use Bramus\Router\Router;
+
+session_start();
+
+$app = new Application();
+$router = new Router();
+
+// Middleware function
+function applyMiddleware(callable $middleware) {
+    return function() use ($middleware) {
+        $middleware();
+    };
+}
+
+// Public routes
+$router->get('/', function() {
+    $controller = new HomeController();
+    $controller->index();
+});
+
+// Products Routes
+$router->get('/products', function() {
+    $controller = new ProductController();
+    $controller->index();
+});
+
+$router->get('/products/(\d+)', function($id) {
+    $controller = new ProductController();
+    $controller->show((int) $id);
+});
+
+// Categories Routes
+$router->get('/categories', function() {
+    $controller = new CategoryController();
+    $controller->index();
+});
+
+$router->get('/categories/(\d+)', function($id) {
+    $controller = new CategoryController();
+    $controller->show((int) $id);
+});
+
+// Cart Routes
+$router->post('/cart/add', function() {
+    $controller = new CartController();
+    $controller->add();
+});
+
+$router->get('/cart', function() {
+    $controller = new CartController();
+    $controller->show();
+});
+
+// Order Routes
+$router->get('/checkout', function() {
+    $controller = new OrderController();
+    $controller->checkout();
+});
+
+$router->post('/checkout', function() {
+    $controller = new OrderController();
+    $controller->processCheckout();
+});
+
+// Pages Route
+$router->get('/pages/([a-zA-Z0-9-_]+)', function($slug) {
+    $controller = new PageController();
+    $controller->show($slug);
+});
+
+
+// API Routes
+$router->mount('/api', function() use ($router) {
+    $router->get('/orders', function() {
+        $controller = new OrderApiController();
+        $controller->index();
+    });
+});
+
+$router->run();

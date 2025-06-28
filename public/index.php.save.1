@@ -88,134 +88,82 @@ $router->get('/pages/([a-zA-Z0-9-_]+)', function($slug) {
 });
 
 
+
 $router->mount('/admin', function() use ($router) {
-    // Authentication routes without middleware
+    // Authentication routes
     $router->get('/login', function() {
-        $controller = new AdminController();
+        $controller = new App\Controllers\AdminController();
         $controller->login();
     });
 
     $router->post('/login', function() {
-        $controller = new AdminController();
+        $controller = new App\Controllers\AdminController();
         $controller->authenticate();
     });
 
     $router->get('/logout', function() {
-        $controller = new AdminController();
+        $controller = new App\Controllers\AdminController();
         $controller->logout();
     });
 
-    // Apply middleware to other admin routes
-    $router->before('GET|POST|PUT|DELETE', '/.*', [AdminMiddleware::class, 'handle']);
-
     // Dashboard
     $router->get('/', function() {
-        $controller = new AdminController();
+        $controller = new App\Controllers\AdminController();
         $controller->dashboard();
     });
 
     // Products
     $router->get('/products', function() {
-        $controller = new AdminProductController();
+        $controller = new App\Controllers\Admin\ProductController();
         $controller->index();
     });
 
     $router->get('/products/create', function() {
-        $controller = new AdminProductController();
+        $controller = new App\Controllers\Admin\ProductController();
         $controller->create();
     });
 
     $router->post('/products', function() {
-        $controller = new AdminProductController();
+        $controller = new App\Controllers\Admin\ProductController();
         $controller->store();
-    });
-
-    $router->get('/products/(\d+)/edit', function($id) {
-        $controller = new AdminProductController();
-        $controller->edit((int)$id);
-    });
-
-    $router->put('/products/(\d+)', function($id) {
-        $controller = new AdminProductController();
-        $controller->update((int)$id);
-    });
-
-    $router->delete('/products/(\d+)', function($id) {
-        $controller = new AdminProductController();
-        $controller->delete((int)$id);
     });
 
     // Categories
     $router->get('/categories', function() {
-        $controller = new AdminCategoryController();
+        $controller = new App\Controllers\Admin\CategoryController();
         $controller->index();
     });
 
     $router->get('/categories/create', function() {
-        $controller = new AdminCategoryController();
+        $controller = new App\Controllers\Admin\CategoryController();
         $controller->create();
     });
 
     $router->post('/categories', function() {
-        $controller = new AdminCategoryController();
+        $controller = new App\Controllers\Admin\CategoryController();
         $controller->store();
-    });
-
-    $router->get('/categories/(\d+)/edit', function($id) {
-        $controller = new AdminCategoryController();
-        $controller->edit((int)$id);
-    });
-
-    $router->put('/categories/(\d+)', function($id) {
-        $controller = new AdminCategoryController();
-        $controller->update((int)$id);
-    });
-
-    $router->delete('/categories/(\d+)', function($id) {
-        $controller = new AdminCategoryController();
-        $controller->delete((int)$id);
     });
 
     // Orders
     $router->get('/orders', function() {
-        $controller = new AdminOrderController();
+        $controller = new App\Controllers\Admin\OrderController();
         $controller->index();
-    });
-
-    $router->get('/orders/(\d+)', function($id) {
-        $controller = new AdminOrderController();
-        $controller->show((int)$id);
     });
 
     // Pages
     $router->get('/pages', function() {
-        $controller = new AdminPageController();
+        $controller = new App\Controllers\Admin\PageController();
         $controller->index();
     });
 
     $router->get('/pages/create', function() {
-        $controller = new AdminPageController();
+        $controller = new App\Controllers\Admin\PageController();
         $controller->create();
     });
 
     $router->post('/pages', function() {
-        $controller = new AdminPageController();
+        $controller = new App\Controllers\Admin\PageController();
         $controller->store();
-    });
-
-    $router->get('/pages/(\d+)/edit', function($id) {
-        $controller = new AdminPageController();
-        $controller->edit((int)$id);
-    });
-
-    $router->put('/pages/(\d+)', function($id) {
-        $controller = new AdminPageController();
-        $controller->update((int)$id);
-    });
-
-    $router->delete('/pages/(\d+)', function($id) {
-        $controller = new AdminPageController();
-        $controller->delete((int)$id);
     });
 });
 
