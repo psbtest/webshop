@@ -68,4 +68,19 @@ class Application
         $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
         return $protocol . '://' . $host;
     }
+
+  private function setup_twig(): void
+    {
+        $loader = new FilesystemLoader(__DIR__ . '/../../templates');
+        $this->twig = new Environment($loader, [
+            'cache' => $_ENV['APP_ENV'] === 'production' ? __DIR__ . '/../../storage/cache/twig' : false,
+            'debug' => $_ENV['APP_DEBUG'] === 'true',
+        ]);
+        
+        // Add custom Twig extension
+        $this->twig->addExtension(new \App\Twig\CustomExtension());
+        
+        $this->twig->addGlobal('app_name', $_ENV['APP_NAME'] ?? 'Webshop');
+        $this->twig->addGlobal('base_url', $this->get_base_url());
+    }
 }

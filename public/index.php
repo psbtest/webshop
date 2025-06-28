@@ -24,68 +24,116 @@ session_start();
 $app = new Application();
 $router = new Router();
 
+// Middleware function
+function applyMiddleware(callable $middleware) {
+    return function() use ($middleware) {
+        $middleware();
+    };
+}
+
 // Public routes
-$router->get('/', [HomeController::class, 'index']);
-$router->get('/products', [ProductController::class, 'index']);
-$router->get('/products/(\d+)', [ProductController::class, 'show']);
-$router->get('/categories', [CategoryController::class, 'index']);
-$router->get('/categories/(\d+)', [CategoryController::class, 'show']);
-$router->get('/pages/([a-zA-Z0-9-_]+)', [PageController::class, 'show']);
-
-// Cart routes
-$router->post('/cart/add', [CartController::class, 'add']);
-$router->get('/cart', [CartController::class, 'show']);
-$router->post('/cart/update', [CartController::class, 'update']);
-$router->post('/cart/remove', [CartController::class, 'remove']);
-
-// Order routes
-$router->post('/checkout', [OrderController::class, 'checkout']);
-$router->get('/order/success/(\d+)', [OrderController::class, 'success']);
-
-// Admin routes
-$router->mount('/admin', function() use ($router) {
-    $router->before('GET|POST|PUT|DELETE', '/.*', [AdminMiddleware::class, 'handle']);
-    
-    $router->get('/', [AdminController::class, 'dashboard']);
-    $router->get('/login', [AdminController::class, 'login']);
-    $router->post('/login', [AdminController::class, 'authenticate']);
-    $router->post('/logout', [AdminController::class, 'logout']);
-    
-    // Products
-    $router->get('/products', [AdminProductController::class, 'index']);
-    $router->get('/products/create', [AdminProductController::class, 'create']);
-    $router->post('/products', [AdminProductController::class, 'store']);
-    $router->get('/products/(\d+)/edit', [AdminProductController::class, 'edit']);
-    $router->put('/products/(\d+)', [AdminProductController::class, 'update']);
-    $router->delete('/products/(\d+)', [AdminProductController::class, 'delete']);
-    
-    // Categories
-    $router->get('/categories', [AdminCategoryController::class, 'index']);
-    $router->get('/categories/create', [AdminCategoryController::class, 'create']);
-    $router->post('/categories', [AdminCategoryController::class, 'store']);
-    $router->get('/categories/(\d+)/edit', [AdminCategoryController::class, 'edit']);
-    $router->put('/categories/(\d+)', [AdminCategoryController::class, 'update']);
-    $router->delete('/categories/(\d+)', [AdminCategoryController::class, 'delete']);
-    
-    // Orders
-    $router->get('/orders', [AdminOrderController::class, 'index']);
-    $router->get('/orders/(\d+)', [AdminOrderController::class, 'show']);
-    $router->put('/orders/(\d+)/status', [AdminOrderController::class, 'update_status']);
-    
-    // Pages
-    $router->get('/pages', [AdminPageController::class, 'index']);
-    $router->get('/pages/create', [AdminPageController::class, 'create']);
-    $router->post('/pages', [AdminPageController::class, 'store']);
-    $router->get('/pages/(\d+)/edit', [AdminPageController::class, 'edit']);
-    $router->put('/pages/(\d+)', [AdminPageController::class, 'update']);
-    $router->delete('/pages/(\d+)', [AdminPageController::class, 'delete']);
+$router->get('/', function() {
+    $controller = new HomeController();
+    $controller->index();
 });
 
-// API routes
+// Products Routes
+$router->get('/products', function() {
+    $controller = new ProductController();
+    $controller->index();
+});
+
+$router->get('/products/(\d+)', function($id) {
+    $controller = new ProductController();
+    $controller->show((int) $id);
+});
+
+// Categories Routes
+$router->get('/categories', function() {
+    $controller = new CategoryController();
+    $controller->index();
+});
+
+$router->get('/categories/(\d+)', function($id) {
+    $controller = new CategoryController();
+    $controller->show((int) $id);
+});
+
+// Cart Routes
+$router->post('/cart/add', function() {
+    $controller = new CartController();
+    $controller->add();
+});
+
+$router->get('/cart', function() {
+    $controller = new CartController();
+    $controller->show();
+});
+
+// Order Routes
+$router->get('/checkout', function() {
+    $controller = new OrderController();
+    $controller->checkout();
+});
+
+$router->post('/checkout', function() {
+    $controller = new OrderController();
+    $controller->processCheckout();
+});
+
+// Pages Route
+$router->get('/pages/([a-zA-Z0-9-_]+)', function($slug) {
+    $controller = new PageController();
+    $controller->show($slug);
+});
+
+// Admin Routes (with middleware)
+$router->mount('/admin', function() use ($router) {
+    // Login routes (no middleware)
+    $router->get('/login', function() {
+        $controller = new AdminController();
+        $controller->login();
+    });
+
+    $router->post('/login', function() {
+        $controller = new AdminController();
+        $controller->authenticate();
+    });
+
+    // Apply middleware to other admin routes
+    $router->before('GET|POST|PUT|DELETE', '/.*', applyMiddleware([AdminMiddleware::class, 'handle']));
+
+    // Dashboard
+    $router->get('/', function() {
+        $controller = new AdminController();
+        $controller->dashboard();
+    });
+
+    // Admin Products
+    $router->get('/products', function() {
+        $controller = new AdminProductController();
+        $controller->index();
+    });
+
+    $router->get('/products/create', function() {
+        $controller = new AdminProductController();
+        $controller->create();
+    });
+
+    $router->post('/products', function() {
+        $controller = new AdminProductController();
+        $controller->store();
+    });
+
+    // Add more admin routes as needed...
+});
+
+// API Routes
 $router->mount('/api', function() use ($router) {
-    $router->get('/orders', [OrderApiController::class, 'index']);
-    $router->get('/orders/(\d+)', [OrderApiController::class, 'show']);
-    $router->post('/webhook/orders', [OrderApiController::class, 'webhook']);
+    $router->get('/orders', function() {
+        $controller = new OrderApiController();
+        $controller->index();
+    });
 });
 
 $router->run();
